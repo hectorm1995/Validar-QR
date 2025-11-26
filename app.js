@@ -32,6 +32,7 @@ class QRValidatorApp {
         document.getElementById('settings-btn').addEventListener('click', () => this.showSettingsModal());
         document.getElementById('save-settings-btn').addEventListener('click', () => this.saveSettings());
         document.getElementById('close-modal-btn').addEventListener('click', () => this.closeSettingsModal());
+        document.getElementById('reset-stats-btn').addEventListener('click', () => this.resetStats());
     }
 
     async startScanning() {
@@ -188,6 +189,19 @@ class QRValidatorApp {
         localStorage.setItem('apiUrl', apiUrl);
         this.closeSettingsModal();
         alert('Configuración guardada correctamente');
+    }
+
+    resetStats() {
+        if (confirm('¿Estás seguro de que quieres resetear las estadísticas?\n\nEsto borrará todos los contadores locales (válidos, inválidos, ya usados).')) {
+            this.stats = {
+                valid: 0,
+                invalid: 0,
+                used: 0
+            };
+            this.saveStats();
+            this.updateStatsDisplay();
+            alert('✅ Estadísticas reseteadas correctamente');
+        }
     }
 
     updateStatsDisplay() {
