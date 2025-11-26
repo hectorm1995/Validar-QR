@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validador de Invitaciones QR</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>🎉 Validador de Invitaciones</h1>
+      <p class="subtitle">Escanea el código QR del invitado</p>
+    </header>
+
+    <main class="main-content">
+      <!-- Scanner Section -->
+      <div id="scanner-section" class="section active">
+        <div id="reader" class="qr-reader"></div>
+        <div class="controls">
+          <button id="start-scan-btn" class="btn btn-primary">
+            <span class="icon">📷</span>
+            Iniciar Escaneo
+          </button>
+          <button id="stop-scan-btn" class="btn btn-secondary" style="display: none;">
+            <span class="icon">⏹️</span>
+            Detener
+          </button>
+        </div>
+      </div>
+
+      <!-- Result Section -->
+      <div id="result-section" class="section" style="display: none;">
+        <div id="result-content" class="result-card"></div>
+        <button id="scan-again-btn" class="btn btn-primary">
+          <span class="icon">🔄</span>
+          Escanear Otro
+        </button>
+      </div>
+
+      <!-- Stats Section -->
+      <div class="stats-container">
+        <div class="stat-item">
+          <div class="stat-value" id="valid-count">0</div>
+          <div class="stat-label">Válidos</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="invalid-count">0</div>
+          <div class="stat-label">Inválidos</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="used-count">0</div>
+          <div class="stat-label">Ya Usados</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+      <div class="modal-content">
+        <h2>⚙️ Configuración</h2>
+        <div class="form-group">
+          <label for="api-url">URL de la API:</label>
+          <input type="text" id="api-url" placeholder="https://script.google.com/...">
+        </div>
+        <div class="modal-actions">
+          <button id="save-settings-btn" class="btn btn-primary">Guardar</button>
+          <button id="close-modal-btn" class="btn btn-secondary">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <button id="settings-btn" class="settings-btn">⚙️</button>
+  </div>
+
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
