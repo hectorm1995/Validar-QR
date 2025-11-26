@@ -142,16 +142,27 @@ class QRValidatorApp {
     }
 
     async loadGlobalStats() {
-        if (!this.apiUrl) return;
+        if (!this.apiUrl) {
+            console.log('No API URL configured'); // DEBUG
+            return;
+        }
 
         try {
             const statsUrl = `${this.apiUrl}?action=stats`;
+            console.log('Loading stats from:', statsUrl); // DEBUG
+
             const response = await fetch(statsUrl);
+            console.log('Stats response status:', response.status); // DEBUG
+
             const result = await response.json();
+            console.log('Stats result:', result); // DEBUG
 
             if (result.success && result.stats) {
+                console.log('Updating display with stats:', result.stats); // DEBUG
                 this.updateStatsDisplay(result.stats);
                 this.updateTimestamp(result.timestamp);
+            } else {
+                console.error('Stats request failed:', result); // DEBUG
             }
         } catch (error) {
             console.error('Error loading stats:', error);
@@ -159,13 +170,17 @@ class QRValidatorApp {
     }
 
     updateStatsDisplay(stats) {
+        console.log('updateStatsDisplay called with:', stats); // DEBUG
         document.getElementById('scanned-count').textContent = stats.scanned || 0;
         document.getElementById('pending-count').textContent = stats.pending || 0;
         document.getElementById('total-count').textContent = stats.total || 0;
     }
 
     updateTimestamp(timestamp) {
-        if (!timestamp) return;
+        if (!timestamp) {
+            document.getElementById('stats-timestamp').textContent = 'Error al cargar estadísticas';
+            return;
+        }
 
         const date = new Date(timestamp);
         const formatted = date.toLocaleTimeString('es-ES', {
