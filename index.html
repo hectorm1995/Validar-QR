@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Validador de Invitaciones QR</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <div class="container">
     <header class="header">
@@ -63,6 +65,15 @@
           <label for="api-url">URL de la API:</label>
           <input type="text" id="api-url" placeholder="https://script.google.com/...">
         </div>
+        <div class="stats-reset-section">
+          <h3>Estadísticas Locales</h3>
+          <p class="stats-info">Las estadísticas se guardan en este navegador. Puedes resetearlas después de hacer
+            pruebas.</p>
+          <button id="reset-stats-btn" class="btn btn-warning">
+            <span class="icon">🔄</span>
+            Resetear Estadísticas
+          </button>
+        </div>
         <div class="modal-actions">
           <button id="save-settings-btn" class="btn btn-primary">Guardar</button>
           <button id="close-modal-btn" class="btn btn-secondary">Cancelar</button>
@@ -76,4 +87,5 @@
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>
