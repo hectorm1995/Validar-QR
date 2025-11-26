@@ -90,23 +90,16 @@ class QRValidatorApp {
         this.showResult('warning', '⏳', 'Validando...', 'Verificando código QR');
 
         try {
-            const response = await fetch(this.apiUrl, {
-                method: 'POST',
-                mode: 'no-cors', // Google Apps Script requires this
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: 'validate',
-                    qrData: qrData
-                })
-            });
-
-            // Note: With no-cors, we can't read the response
-            // We'll use a GET request instead
+            // Use GET request only to avoid double validation issues
+            // The GET request will validate AND mark as scanned in one go
             const getUrl = `${this.apiUrl}?action=validate&qr=${encodeURIComponent(qrData)}`;
-            const getResponse = await fetch(getUrl);
-            const result = await getResponse.json();
+            console.log('Calling API:', getUrl); // DEBUG
+
+            const response = await fetch(getUrl);
+            const result = await response.json();
+
+            console.log('API Response:', result); // DEBUG
+            // alert('Respuesta API: ' + JSON.stringify(result)); // Uncomment for mobile debug
 
             this.handleValidationResult(result);
 
@@ -117,7 +110,11 @@ class QRValidatorApp {
     }
 
     handleValidationResult(result) {
+        console.log('Handling result:', result); // DEBUG
+        console.log('Success:', result.success, 'Status:', result.status); // DEBUG
+
         if (result.success && result.status === 'valid') {
+            console.log('Case: VALID'); // DEBUG
             this.stats.valid++;
             this.playSound('success');
             this.showResult(
@@ -127,6 +124,7 @@ class QRValidatorApp {
                 `${result.guestName}<br><small>${result.message}</small>`
             );
         } else if (result.status === 'already_used') {
+            console.log('Case: ALREADY USED'); // DEBUG
             this.stats.used++;
             this.playSound('error');
             this.showResult(
