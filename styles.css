@@ -141,17 +141,62 @@ body {
 }
 
 .stats-container {
+  margin-top: 30px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px;
+  border-radius: 15px;
+}
+
+.stats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.stats-header h3 {
+  margin: 0;
+  color: #667eea;
+  font-size: 1.2rem;
+}
+
+.refresh-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.refresh-btn:hover {
+  transform: rotate(180deg) scale(1.1);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.refresh-btn:active {
+  transform: rotate(180deg) scale(0.95);
+}
+
+.stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
-  margin-top: 30px;
+  margin-bottom: 15px;
 }
 
 .stat-item {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: white;
   padding: 20px;
   border-radius: 12px;
   text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .stat-value {
@@ -166,6 +211,13 @@ body {
   color: #666;
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+
+.stats-footer {
+  text-align: center;
+  color: #666;
+  font-size: 0.85rem;
+  opacity: 0.8;
 }
 
 .settings-btn {
@@ -254,38 +306,6 @@ body {
   flex: 1;
 }
 
-.stats-reset-section {
-  margin: 30px 0;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 10px;
-  border-left: 4px solid #ffc107;
-}
-
-.stats-reset-section h3 {
-  margin: 0 0 10px 0;
-  font-size: 1.1rem;
-  color: #333;
-}
-
-.stats-info {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 15px;
-  line-height: 1.5;
-}
-
-.btn-warning {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-  width: 100%;
-}
-
-.btn-warning:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
-}
-
 @keyframes fadeInDown {
   from {
     opacity: 0;
@@ -327,7 +347,7 @@ body {
     font-size: 2rem;
   }
 
-  .stats-container {
+  .stats-grid {
     grid-template-columns: 1fr;
   }
 
