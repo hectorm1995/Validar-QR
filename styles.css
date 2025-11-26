@@ -1,49 +1,360 @@
-// QR Validator App - Main JavaScript
-// Handles QR scanning, validation, and UI updates
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-class QRValidatorApp {
-    constructor() {
-        this.html5QrCode = null;
-        this.apiUrl = localStorage.getItem('apiUrl') || '';
-        this.statsInterval = null;
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+  color: #333;
+}
 
-        this.init();
-    }
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
 
-    init() {
-        this.setupEventListeners();
-        this.loadGlobalStats();
+.header {
+  text-align: center;
+  color: white;
+  margin-bottom: 30px;
+  animation: fadeInDown 0.6s ease;
+}
 
-        // Auto-refresh stats every 10 seconds
-        this.statsInterval = setInterval(() => this.loadGlobalStats(), 10000);
+.header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
 
-        // Show settings modal if API URL not configured
-        if (!this.apiUrl) {
-            this.showSettingsModal();
-        }
-    }
+.subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
 
-    setupEventListeners() {
-        document.getElementById('start-scan-btn').addEventListener('click', () => this.startScanning());
-        document.getElementById('stop-scan-btn').addEventListener('click', () => this.stopScanning());
-        document.getElementById('scan-again-btn').addEventListener('click', () => this.resetToScanner());
-        document.getElementById('settings-btn').addEventListener('click', () => this.showSettingsModal());
-        document.getElementById('save-settings-btn').addEventListener('click', () => this.saveSettings());
-        document.getElementById('close-modal-btn').addEventListener('click', () => this.closeSettingsModal());
-        document.getElementById('refresh-stats-btn').addEventListener('click', () => this.loadGlobalStats());
-    }
+.main-content {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 0.6s ease;
+}
 
-    async startScanning() {
-        try {
-            this.html5QrCode = new Html5Qrcode("reader");
+.section {
+  display: none;
+}
 
-            const config = {
-                fps: 10,
-                qrbox: { width: 250, height: 250 },
-                aspectRatio: 1.0
-            };
+.section.active {
+  display: block;
+}
 
-            await this.html5QrCode.start(
+.qr-reader {
+  border-radius: 15px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  background: #f5f5f5;
+  min-height: 300px;
+}
+
+.controls {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.btn {
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
+.icon {
+  font-size: 1.3rem;
+}
+
+.result-card {
+  padding: 40px;
+  border-radius: 15px;
+  text-align: center;
+  margin-bottom: 20px;
+  animation: scaleIn 0.4s ease;
+}
+
+.result-card.success {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+}
+
+.result-card.error {
+  background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+  color: white;
+}
+
+.result-card.warning {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.result-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.result-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.result-message {
+  font-size: 1.2rem;
+  opacity: 0.95;
+}
+
+.stats-container {
+  margin-top: 30px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px;
+  border-radius: 15px;
+}
+
+.stats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.stats-header h3 {
+  margin: 0;
+  color: #667eea;
+  font-size: 1.2rem;
+}
+
+.refresh-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.refresh-btn:hover {
+  transform: rotate(180deg) scale(1.1);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.refresh-btn:active {
+  transform: rotate(180deg) scale(0.95);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.stat-item {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #667eea;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stats-footer {
+  text-align: center;
+  color: #666;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.settings-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.settings-btn:hover {
+  transform: scale(1.1) rotate(90deg);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  max-width: 500px;
+  width: 90%;
+  animation: scaleIn 0.3s ease;
+}
+
+.modal-content h2 {
+  margin-bottom: 25px;
+  color: #667eea;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.modal-actions .btn {
+  flex: 1;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 600px) {
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .main-content {
+    padding: 20px;
+  }
+}
                 { facingMode: "environment" },
                 config,
                 (decodedText) => this.onScanSuccess(decodedText),
@@ -250,3 +561,4 @@ class QRValidatorApp {
 document.addEventListener('DOMContentLoaded', () => {
     new QRValidatorApp();
 });
+
