@@ -42,17 +42,26 @@
 
       <!-- Stats Section -->
       <div class="stats-container">
-        <div class="stat-item">
-          <div class="stat-value" id="valid-count">0</div>
-          <div class="stat-label">Válidos</div>
+        <div class="stats-header">
+          <h3>📊 Estadísticas Globales</h3>
+          <button id="refresh-stats-btn" class="refresh-btn" title="Actualizar estadísticas">🔄</button>
         </div>
-        <div class="stat-item">
-          <div class="stat-value" id="invalid-count">0</div>
-          <div class="stat-label">Inválidos</div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value" id="scanned-count">0</div>
+            <div class="stat-label">Escaneados</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="pending-count">0</div>
+            <div class="stat-label">Pendientes</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="total-count">0</div>
+            <div class="stat-label">Total</div>
+          </div>
         </div>
-        <div class="stat-item">
-          <div class="stat-value" id="used-count">0</div>
-          <div class="stat-label">Ya Usados</div>
+        <div class="stats-footer">
+          <small id="stats-timestamp">Última actualización: --</small>
         </div>
       </div>
     </main>
@@ -64,15 +73,6 @@
         <div class="form-group">
           <label for="api-url">URL de la API:</label>
           <input type="text" id="api-url" placeholder="https://script.google.com/...">
-        </div>
-        <div class="stats-reset-section">
-          <h3>Estadísticas Locales</h3>
-          <p class="stats-info">Las estadísticas se guardan en este navegador. Puedes resetearlas después de hacer
-            pruebas.</p>
-          <button id="reset-stats-btn" class="btn btn-warning">
-            <span class="icon">🔄</span>
-            Resetear Estadísticas
-          </button>
         </div>
         <div class="modal-actions">
           <button id="save-settings-btn" class="btn btn-primary">Guardar</button>
