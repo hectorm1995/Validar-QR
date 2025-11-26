@@ -5,19 +5,17 @@ class QRValidatorApp {
     constructor() {
         this.html5QrCode = null;
         this.apiUrl = localStorage.getItem('apiUrl') || '';
-        this.stats = {
-            valid: 0,
-            invalid: 0,
-            used: 0
-        };
+        this.statsInterval = null;
 
         this.init();
     }
 
     init() {
-        this.loadStats();
         this.setupEventListeners();
-        this.updateStatsDisplay();
+        this.loadGlobalStats();
+
+        // Auto-refresh stats every 10 seconds
+        this.statsInterval = setInterval(() => this.loadGlobalStats(), 10000);
 
         // Show settings modal if API URL not configured
         if (!this.apiUrl) {
@@ -32,7 +30,7 @@ class QRValidatorApp {
         document.getElementById('settings-btn').addEventListener('click', () => this.showSettingsModal());
         document.getElementById('save-settings-btn').addEventListener('click', () => this.saveSettings());
         document.getElementById('close-modal-btn').addEventListener('click', () => this.closeSettingsModal());
-        document.getElementById('reset-stats-btn').addEventListener('click', () => this.resetStats());
+        document.getElementById('refresh-stats-btn').addEventListener('click', () => this.loadGlobalStats());
     }
 
     async startScanning() {
@@ -91,7 +89,6 @@ class QRValidatorApp {
 
         try {
             // Use GET request only to avoid double validation issues
-            // The GET request will validate AND mark as scanned in one go
             const getUrl = `${this.apiUrl}?action=validate&qr=${encodeURIComponent(qrData)}`;
             console.log('Calling API:', getUrl); // DEBUG
 
@@ -99,9 +96,11 @@ class QRValidatorApp {
             const result = await response.json();
 
             console.log('API Response:', result); // DEBUG
-            // alert('Respuesta API: ' + JSON.stringify(result)); // Uncomment for mobile debug
 
             this.handleValidationResult(result);
+
+            // Refresh stats after validation
+            await this.loadGlobalStats();
 
         } catch (error) {
             console.error('Validation error:', error);
@@ -115,7 +114,6 @@ class QRValidatorApp {
 
         if (result.success && result.status === 'valid') {
             console.log('Case: VALID'); // DEBUG
-            this.stats.valid++;
             this.playSound('success');
             this.showResult(
                 'success',
@@ -125,7 +123,6 @@ class QRValidatorApp {
             );
         } else if (result.status === 'already_used') {
             console.log('Case: ALREADY USED'); // DEBUG
-            this.stats.used++;
             this.playSound('error');
             this.showResult(
                 'warning',
@@ -134,7 +131,6 @@ class QRValidatorApp {
                 `${result.guestName}<br><small>Escaneado: ${result.scannedAt}</small>`
             );
         } else {
-            this.stats.invalid++;
             this.playSound('error');
             this.showResult(
                 'error',
@@ -143,9 +139,42 @@ class QRValidatorApp {
                 result.message || 'Este código QR no es válido'
             );
         }
+    }
 
-        this.saveStats();
-        this.updateStatsDisplay();
+    async loadGlobalStats() {
+        if (!this.apiUrl) return;
+
+        try {
+            const statsUrl = `${this.apiUrl}?action=stats`;
+            const response = await fetch(statsUrl);
+            const result = await response.json();
+
+            if (result.success && result.stats) {
+                this.updateStatsDisplay(result.stats);
+                this.updateTimestamp(result.timestamp);
+            }
+        } catch (error) {
+            console.error('Error loading stats:', error);
+        }
+    }
+
+    updateStatsDisplay(stats) {
+        document.getElementById('scanned-count').textContent = stats.scanned || 0;
+        document.getElementById('pending-count').textContent = stats.pending || 0;
+        document.getElementById('total-count').textContent = stats.total || 0;
+    }
+
+    updateTimestamp(timestamp) {
+        if (!timestamp) return;
+
+        const date = new Date(timestamp);
+        const formatted = date.toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+
+        document.getElementById('stats-timestamp').textContent = `Última actualización: ${formatted}`;
     }
 
     showResult(type, icon, title, message) {
@@ -187,36 +216,9 @@ class QRValidatorApp {
         localStorage.setItem('apiUrl', apiUrl);
         this.closeSettingsModal();
         alert('Configuración guardada correctamente');
-    }
 
-    resetStats() {
-        if (confirm('¿Estás seguro de que quieres resetear las estadísticas?\n\nEsto borrará todos los contadores locales (válidos, inválidos, ya usados).')) {
-            this.stats = {
-                valid: 0,
-                invalid: 0,
-                used: 0
-            };
-            this.saveStats();
-            this.updateStatsDisplay();
-            alert('✅ Estadísticas reseteadas correctamente');
-        }
-    }
-
-    updateStatsDisplay() {
-        document.getElementById('valid-count').textContent = this.stats.valid;
-        document.getElementById('invalid-count').textContent = this.stats.invalid;
-        document.getElementById('used-count').textContent = this.stats.used;
-    }
-
-    saveStats() {
-        localStorage.setItem('stats', JSON.stringify(this.stats));
-    }
-
-    loadStats() {
-        const saved = localStorage.getItem('stats');
-        if (saved) {
-            this.stats = JSON.parse(saved);
-        }
+        // Load stats immediately after saving
+        this.loadGlobalStats();
     }
 
     playSound(type) {
